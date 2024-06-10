@@ -1,4 +1,5 @@
 # token exchange sequence
+https://stackoverflow.com/questions/78602573/keycloak-token-exchange-sequence
 
 ## run keycloak
 ```
@@ -17,7 +18,7 @@ there are 3 clients `service-1-client`, `service-2-client`, `service-3-client` a
 unfortunately this step 3 fails with `Http 400 Bad Request - invalid_token`
 logging
 ```
-DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25) Client session for client 'service-1-client' not present in user session 'bcc55f7b-bf6a-488b-99af-f46cf4e8ef6c'
+DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25) Client session for client 'service-1-client' not present in user session '...'
 ```
 
 ```
@@ -63,7 +64,7 @@ DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25
 unfortunately this step 3 fails with `Http 400 Bad Request - invalid_token`
 logging
 ```
-DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25) Client session for client 'service-1-client' not present in user session 'bcc55f7b-bf6a-488b-99af-f46cf4e8ef6c'
+DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25) Client session for client 'service-1-client' not present in user session '...'
 ```
 
 ```
