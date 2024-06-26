@@ -1,0 +1,72 @@
+/*
+Best to use with the VS Code and the [httpBook - Rest Client](https://marketplace.visualstudio.com/items?itemName=anweber.httpbook) (and [httpYac - Rest Client](https://marketplace.visualstudio.com/items?itemName=anweber.vscode-httpyac)) extension.
+Then:
+1. Start keycloak
+    ```
+    cd token-exchange-sequence
+    docker-compose up
+    ```
+2. Optionally connect remote debugger with IntelliJ to keycloak and set break point(s).
+3. Reproduce problem by executing the  service2-exchange request (last request). This will run all the required previous requests as well. Optionally you can run also request by request to better follow the different token request and exchanges.
+*/
+@keycloakHost = http://localhost:8881
+@keycloakRealm = dev
+@keycloakTokenEndpoint = {{keycloakHost}}/realms/{{keycloakRealm}}/protocol/openid-connect/token
+@keycloakAuthorizationEndpoint = {{keycloakHost}}/realms/{{keycloakRealm}}/protocol/openid-connect/auth
+
+
+@spa_authorizationEndpoint = {{keycloakAuthorizationEndpoint}}
+@spa_tokenEndpoint = {{keycloakTokenEndpoint}}
+@spa_clientId = public-spa
+@spa_scope = openid profile
+@spa_audience = service-1-client
+
+@service1_clientId = service-1-client
+@service1_clientSecret = LgxGBWTyGvL1YqpeMPcUPprZpXUv34MR
+
+@service2_clientId = service-2-client
+@service2_clientSecret = UjGgHI0WsypbrtZtr2bTTbjKJll8TeDO
+###
+# @name spa-login
+// @no-redirect
+GET {{keycloakHost}}/ HTTP/1.1
+Authorization: openid authorization_code spa
+
+{{
+  console.info('spa:', oauth2Session.accessToken);
+  exports.spaAccessToken=oauth2Session.accessToken;
+}}
+###
+# @ref spa-login
+# @name service1-exchange
+POST {{keycloakTokenEndpoint}} HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{service1_clientId}}&
+client_secret={{service1_clientSecret}}&
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange&
+requested_token_type=urn:ietf:params:oauth:token-type:access_token&
+audience=service-2-client&
+subject_token={{spaAccessToken}}
+
+{{
+  console.info('service1:', response.parsedBody.access_token);
+  exports.client1AccessToken=response.parsedBody.access_token;
+}}
+###
+# @ref service1-exchange
+# @name service2-exchange
+POST {{keycloakTokenEndpoint}} HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{service2_clientId}}&
+client_secret={{service2_clientSecret}}&
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange&
+requested_token_type=urn:ietf:params:oauth:token-type:access_token&
+audience=service-3-client&
+subject_token={{client1AccessToken}}
+
+{{
+  console.info('service2:', response.parsedBody.access_token);
+  exports.client2AccessToken=response.parsedBody.access_token;
+}}
