@@ -2,10 +2,33 @@
 https://stackoverflow.com/questions/78602573/keycloak-token-exchange-sequence
 
 ## run keycloak
+### in docker
 ```
 cd token-exchange-sequence
 docker-compose up
 ```
+### form your keycloak-workspace
+
+first build it (assuming keycloak cloned in same root as this repo)
+```
+cd keycloak
+./mvnw -DskipTests clean install
+java -Dkc.home.dir=./quarkus/server/target/ -jar quarkus/server/target/lib/quarkus-run.jar build --features=preview
+java -Dkc.home.dir=./quarkus/server/target/ -jar quarkus/server/target/lib/quarkus-run.jar show-config
+java -Dkc.home.dir=./quarkus/server/target/ -jar quarkus/server/target/lib/quarkus-run.jar import --file ../keycloak-examples/token-exchange-sequence/import/dev-realm.json
+```
+
+then run it
+```
+KEYCLOAK_ADMIN=admin 
+KEYCLOAK_ADMIN_PASSWORD=admin 
+
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787 -Dkc.home.dir=./quarkus/server/target/ -jar quarkus/server/target/lib/quarkus-run.jar start-dev \ 
+  --http-port 8881
+  --log-level=INFO,org.keycloak.services.managers:debug,org.keycloak.authentication:debug,org.keycloak.events:debug
+```
+
+
 
 ## scenarios
 there are 3 clients `service-1-client`, `service-2-client`, `service-3-client` and `public-spa`.
@@ -52,8 +75,7 @@ DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
     --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
     --data-urlencode "audience=service-3-client" \
-    --data-urlencode "subject_token=$token2"
-    
+    --data-urlencode "subject_token=$token2"    
 ``` 
 
 ### token-exchange starting with grant_type=password on `public-spa`
