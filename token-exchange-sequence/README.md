@@ -1,7 +1,8 @@
 # this example shows token exchange sequence
 
-Initially only [S1](#s1-token-exchange-starting-with-grant_typepassword-on-service-1-client) worked
 https://stackoverflow.com/questions/78602573/keycloak-token-exchange-sequence
+
+Initially only [S1](#s1-token-exchange-starting-with-grant_typepassword-on-service-1-client) worked
 
 Then issue https://github.com/keycloak/keycloak/issues/30614 fixed [S2](#s2-token-exchange-starting-with-grant_typeclient_credentials-on-service-1-client)
 
