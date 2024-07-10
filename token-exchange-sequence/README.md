@@ -17,7 +17,7 @@ cd token-exchange-sequence
 docker-compose up
 ```
 
-### form your locally built keycloak
+### from your locally built keycloak
 
 first build it (assuming keycloak cloned in same root as this repo)
 
