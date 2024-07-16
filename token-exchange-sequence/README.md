@@ -22,7 +22,7 @@ docker-compose up
 first build it (assuming keycloak cloned in same root as this repo)
 
 ```
-cd keycloak
+cd ../keycloak
 ./mvnw -DskipTests clean install
 java -Dkc.home.dir=./quarkus/server/target/ -jar quarkus/server/target/lib/quarkus-run.jar build --features=preview
 java -Dkc.home.dir=./quarkus/server/target/ -jar quarkus/server/target/lib/quarkus-run.jar show-config
