@@ -48,7 +48,42 @@ curl -s -X POST \
 <br> out of the box this might be achieved by adding role `impersonation` to grant.
 * if there are any policies defined on [users/permissions/user-impersonated](http://localhost:8882/admin/master/console/#/dev/users/permissions) there must allow too.
 
+### S2 - direct naked impersonation
 
+for whatever reason we have a client `impersonation-direct-admin` which is allowed to impersonate without providing a user-token.
+[Securing Apps / 7.6. Direct Naked Impersonation](https://www.keycloak.org/docs/latest/securing_apps/index.html#direct-naked-impersonation)
+
+```
+curl -s -X POST \
+--location http://localhost:8882/realms/dev/protocol/openid-connect/token \
+--header "Content-Type: application/x-www-form-urlencoded" \
+--data-urlencode "client_id=impersonation-direct-admin" \
+--data-urlencode "client_secret=r7cTLqAFCfBluWUCuhVFdd3S2jPOK474" \
+--data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+--data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+--data-urlencode "requested_subject=grant" | jq
+
+curl -s -X POST \
+--location http://localhost:8882/realms/dev/protocol/openid-connect/token \
+--header "Content-Type: application/x-www-form-urlencoded" \
+--data-urlencode "client_id=impersonation-direct-admin" \
+--data-urlencode "client_secret=r7cTLqAFCfBluWUCuhVFdd3S2jPOK474" \
+--data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+--data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+--data-urlencode "audience=public-spa" \
+--data-urlencode "requested_subject=grant" | jq
+```
+
+#### required config
+* `impersonation-direct-admin` must explicitly be allowed in [users/permissions/impersonate](http://localhost:8882/admin/master/console/#/dev/users/permissions)
+* when requesting token for specific audience `--data-urlencode "audience=public-spa"` this client must allow it in [permissions/token-exchange](http://localhost:8882/admin/master/console/#/dev/clients/2575df73-bf3d-458f-b5f3-8eaacf134c39/permissions)
+
+### S3 - conditional impersonation 
+
+https://github.com/keycloak/keycloak/discussions/20252
+
+now its getting trickier
+* 
 
 
 ## export realm
