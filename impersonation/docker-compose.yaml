@@ -1,10 +1,11 @@
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.5
-    container_name: keycloak-examples-multi-service-token-exchange
+    image: quay.io/keycloak/keycloak:25.0.0
+    container_name: keycloak-examples-impersonation
     ports:
-      - "8881:8080"
-      - "8781:8787"
+      - "8882:8080"
+      - "8782:8787"
+      - "8783:8788"
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -13,7 +14,7 @@ services:
       - ./import:/opt/keycloak/data/import
     restart: on-failure
     healthcheck:
-      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://qks-tokenexchange-keycloak:8080/realms/dev' ]
+      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://keycloak-examples-impersonation:8080/realms/dev' ]
       interval: 1s
       timeout: 10s
       retries: 30
