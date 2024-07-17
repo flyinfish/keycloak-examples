@@ -389,6 +389,26 @@
   "webAuthnPolicyPasswordlessAcceptableAaguids" : [ ],
   "webAuthnPolicyPasswordlessExtraOrigins" : [ ],
   "users" : [ {
+    "id" : "fe612deb-ab0a-4052-9067-080272ba09ca",
+    "username" : "devadmin",
+    "emailVerified" : false,
+    "createdTimestamp" : 1721197904983,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "4da5e488-03cd-4ad0-bd8b-8ec9f0103010",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1721197913839,
+      "secretData" : "{\"value\":\"NXiAMkNiyxmqdermrlOyOAfWJUwpGvy4wMoVQdluLV4=\",\"salt\":\"FS7nr2F5Z8TrRZITfmxOrQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-dev" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
     "id" : "e2ac7b28-b45e-4f10-8078-5f6fe574d7a8",
     "username" : "grant",
     "firstName" : "grant",
@@ -696,6 +716,7 @@
       "oidc.ciba.grant.enabled" : "false",
       "client.secret.creation.time" : "1721137365",
       "backchannel.logout.session.required" : "true",
+      "post.logout.redirect.uris" : "+",
       "oauth2.device.authorization.grant.enabled" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"
     },
@@ -832,15 +853,15 @@
         }, {
           "name" : "map-roles-client-scope"
         }, {
-          "name" : "map-roles"
-        }, {
           "name" : "configure"
+        }, {
+          "name" : "map-roles"
         }, {
           "name" : "manage"
         }, {
-          "name" : "map-roles-composite"
-        }, {
           "name" : "token-exchange"
+        }, {
+          "name" : "map-roles-composite"
         } ]
       }, {
         "name" : "client.resource.083dff94-7f5b-46a2-a188-87b7deb0488b",
@@ -853,15 +874,15 @@
         }, {
           "name" : "map-roles-client-scope"
         }, {
-          "name" : "map-roles"
-        }, {
           "name" : "configure"
+        }, {
+          "name" : "map-roles"
         }, {
           "name" : "manage"
         }, {
-          "name" : "map-roles-composite"
-        }, {
           "name" : "token-exchange"
+        }, {
+          "name" : "map-roles-composite"
         } ]
       }, {
         "name" : "client.resource.2575df73-bf3d-458f-b5f3-8eaacf134c39",
@@ -874,15 +895,15 @@
         }, {
           "name" : "map-roles-client-scope"
         }, {
-          "name" : "map-roles"
-        }, {
           "name" : "configure"
+        }, {
+          "name" : "map-roles"
         }, {
           "name" : "manage"
         }, {
-          "name" : "map-roles-composite"
-        }, {
           "name" : "token-exchange"
+        }, {
+          "name" : "map-roles-composite"
         } ]
       }, {
         "name" : "Users",
@@ -892,9 +913,9 @@
         "scopes" : [ {
           "name" : "user-impersonated"
         }, {
-          "name" : "view"
-        }, {
           "name" : "manage-group-membership"
+        }, {
+          "name" : "view"
         }, {
           "name" : "impersonate"
         }, {
@@ -956,6 +977,17 @@
         "decisionStrategy" : "UNANIMOUS",
         "config" : {
           "clients" : "[\"impersonation-direct-admin\"]"
+        }
+      }, {
+        "name" : "users-starting-with-testuser",
+        "description" : "",
+        "type" : "regex",
+        "logic" : "POSITIVE",
+        "decisionStrategy" : "UNANIMOUS",
+        "config" : {
+          "targetContextAttributes" : "false",
+          "pattern" : "testuser.*",
+          "targetClaim" : "username"
         }
       }, {
         "name" : "manage.permission.client.3cbd090b-c49e-4068-99fb-613c0d41cc49",
@@ -1150,7 +1182,7 @@
         "config" : {
           "resources" : "[\"client.resource.2575df73-bf3d-458f-b5f3-8eaacf134c39\"]",
           "scopes" : "[\"token-exchange\"]",
-          "applyPolicies" : "[\"impersonation-admin\",\"impersonation-direct-admin\"]"
+          "applyPolicies" : "[\"impersonation-direct-admin\",\"impersonation-admin\"]"
         }
       }, {
         "name" : "manage.permission.users",
@@ -1201,12 +1233,14 @@
         }
       }, {
         "name" : "user-impersonated.permission.users",
+        "description" : "",
         "type" : "scope",
         "logic" : "POSITIVE",
-        "decisionStrategy" : "UNANIMOUS",
+        "decisionStrategy" : "AFFIRMATIVE",
         "config" : {
           "resources" : "[\"Users\"]",
-          "scopes" : "[\"user-impersonated\"]"
+          "scopes" : "[\"user-impersonated\"]",
+          "applyPolicies" : "[\"users-starting-with-testuser\"]"
         }
       } ],
       "scopes" : [ {
@@ -2099,7 +2133,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "saml-user-property-mapper", "oidc-address-mapper", "oidc-usermodel-property-mapper", "oidc-full-name-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-role-list-mapper", "saml-user-attribute-mapper", "oidc-usermodel-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "oidc-usermodel-property-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-user-attribute-mapper", "oidc-usermodel-attribute-mapper", "oidc-full-name-mapper", "saml-role-list-mapper", "saml-user-property-mapper", "oidc-address-mapper" ]
       }
     }, {
       "id" : "dec1d7bd-dc8a-428a-9d2c-148d9cb16bba",
@@ -2108,7 +2142,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "saml-user-property-mapper", "oidc-full-name-mapper", "saml-role-list-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-property-mapper", "saml-user-attribute-mapper", "oidc-address-mapper", "oidc-usermodel-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-role-list-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-full-name-mapper", "saml-user-attribute-mapper", "oidc-address-mapper", "oidc-usermodel-property-mapper", "saml-user-property-mapper", "oidc-usermodel-attribute-mapper" ]
       }
     }, {
       "id" : "1202d9cd-c676-4d77-b318-9d01a9369523",
@@ -2259,6 +2293,20 @@
       "autheticatorFlow" : false,
       "userSetupAllowed" : false
     }, {
+      "authenticator" : "conditional-user-configured",
+      "authenticatorFlow" : false,
+      "requirement" : "REQUIRED",
+      "priority" : 10,
+      "autheticatorFlow" : false,
+      "userSetupAllowed" : false
+    }, {
+      "authenticator" : "organization",
+      "authenticatorFlow" : false,
+      "requirement" : "ALTERNATIVE",
+      "priority" : 20,
+      "autheticatorFlow" : false,
+      "userSetupAllowed" : false
+    }, {
       "authenticator" : "organization",
       "authenticatorFlow" : false,
       "requirement" : "ALTERNATIVE",
@@ -2268,6 +2316,14 @@
     } ]
   }, {
     "id" : "c0fc8708-2193-40c2-ad74-ff7e691067de",
+    "alias" : "Browser - Conditional Organization",
+    "description" : "Flow to determine if the organization identity-first login is to be used",
+    "providerId" : "basic-flow",
+    "topLevel" : false,
+    "builtIn" : true,
+    "authenticationExecutions" : [ ]
+  }, {
+    "id" : "a03c1f89-92b2-4182-83d7-d073eff3fe08",
     "alias" : "Browser - Conditional Organization",
     "description" : "Flow to determine if the organization identity-first login is to be used",
     "providerId" : "basic-flow",
@@ -2325,6 +2381,20 @@
       "autheticatorFlow" : false,
       "userSetupAllowed" : false
     }, {
+      "authenticator" : "conditional-user-configured",
+      "authenticatorFlow" : false,
+      "requirement" : "REQUIRED",
+      "priority" : 10,
+      "autheticatorFlow" : false,
+      "userSetupAllowed" : false
+    }, {
+      "authenticator" : "idp-add-organization-member",
+      "authenticatorFlow" : false,
+      "requirement" : "REQUIRED",
+      "priority" : 20,
+      "autheticatorFlow" : false,
+      "userSetupAllowed" : false
+    }, {
       "authenticator" : "idp-add-organization-member",
       "authenticatorFlow" : false,
       "requirement" : "REQUIRED",
@@ -2334,6 +2404,14 @@
     } ]
   }, {
     "id" : "fe0e3a3e-2849-4b7c-8d2d-296899157273",
+    "alias" : "First Broker Login - Conditional Organization",
+    "description" : "Flow to determine if the authenticator that adds organization members is to be used",
+    "providerId" : "basic-flow",
+    "topLevel" : false,
+    "builtIn" : true,
+    "authenticationExecutions" : [ ]
+  }, {
+    "id" : "b63d715b-96f5-45a6-9253-085527027fd9",
     "alias" : "First Broker Login - Conditional Organization",
     "description" : "Flow to determine if the authenticator that adds organization members is to be used",
     "providerId" : "basic-flow",
@@ -2411,9 +2489,23 @@
       "autheticatorFlow" : true,
       "flowAlias" : "Browser - Conditional Organization",
       "userSetupAllowed" : false
+    }, {
+      "authenticatorFlow" : true,
+      "requirement" : "CONDITIONAL",
+      "priority" : 10,
+      "autheticatorFlow" : true,
+      "flowAlias" : "Browser - Conditional Organization",
+      "userSetupAllowed" : false
     } ]
   }, {
     "id" : "3131fb3f-26e9-4a96-8739-9a4cceb72595",
+    "alias" : "Organization",
+    "providerId" : "basic-flow",
+    "topLevel" : false,
+    "builtIn" : true,
+    "authenticationExecutions" : [ ]
+  }, {
+    "id" : "c112a619-4fca-42e2-8715-c5934f8bfd90",
     "alias" : "Organization",
     "providerId" : "basic-flow",
     "topLevel" : false,
@@ -2538,6 +2630,13 @@
     }, {
       "authenticatorFlow" : true,
       "requirement" : "ALTERNATIVE",
+      "priority" : 26,
+      "autheticatorFlow" : true,
+      "flowAlias" : "Organization",
+      "userSetupAllowed" : false
+    }, {
+      "authenticatorFlow" : true,
+      "requirement" : "ALTERNATIVE",
       "priority" : 30,
       "autheticatorFlow" : true,
       "flowAlias" : "forms",
@@ -2644,6 +2743,13 @@
       "priority" : 20,
       "autheticatorFlow" : true,
       "flowAlias" : "User creation or linking",
+      "userSetupAllowed" : false
+    }, {
+      "authenticatorFlow" : true,
+      "requirement" : "CONDITIONAL",
+      "priority" : 50,
+      "autheticatorFlow" : true,
+      "flowAlias" : "First Broker Login - Conditional Organization",
       "userSetupAllowed" : false
     }, {
       "authenticatorFlow" : true,
