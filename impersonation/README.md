@@ -159,17 +159,17 @@ curl -s -X POST \
 
 #### S3.2 `impersonation-direct-admin` should still be able to impersonate ALL users
 
+as explaine above, shouldnt [UserPermissions](https://github.com/keycloak/keycloak/blob/35b9d8aa496bfe827e32adbd48e5eabb4ab182e7/services/src/main/java/org/keycloak/services/resources/admin/permissions/UserPermissions.java#L355)
 ```
- # should work, but dont as compromised by S3.1 when policy `users-starting-with-testuser` attached
-curl -s -X POST \
---location http://localhost:8882/realms/dev/protocol/openid-connect/token \
---header "Content-Type: application/x-www-form-urlencoded" \
---data-urlencode "client_id=impersonation-direct-admin" \
---data-urlencode "client_secret=r7cTLqAFCfBluWUCuhVFdd3S2jPOK474" \
---data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
---data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
---data-urlencode "requested_subject=grant" | jq
+return canImpersonate(context) && isImpersonatable(user) && isImpersonatableWithinContext(context, user);
+```
+rather than just
+```
+return canImpersonate(context) && isImpersonatable(user);
+```
 
+
+```
  # does still work
 curl -s -X POST \
 --location http://localhost:8882/realms/dev/protocol/openid-connect/token \
@@ -180,6 +180,16 @@ curl -s -X POST \
 --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
 --data-urlencode "audience=public-spa" \
 --data-urlencode "requested_subject=testuser001" | jq
+
+ # should work, but dont when compromised by S3.1 with policy `users-starting-with-testuser` attached
+curl -s -X POST \
+--location http://localhost:8882/realms/dev/protocol/openid-connect/token \
+--header "Content-Type: application/x-www-form-urlencoded" \
+--data-urlencode "client_id=impersonation-direct-admin" \
+--data-urlencode "client_secret=r7cTLqAFCfBluWUCuhVFdd3S2jPOK474" \
+--data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+--data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+--data-urlencode "requested_subject=grant" | jq
 ```
 
 ## export realm

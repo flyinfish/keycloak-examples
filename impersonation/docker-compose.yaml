@@ -21,7 +21,7 @@ services:
     command:
       - start-dev
       - --import-realm
-      - --log-level=INFO,org.keycloak.authorization.policy.provider:debug
+      - --log-level=INFO,org.keycloak.authorization.policy.provider:info
       - --features=preview
       - --debug
     networks:
