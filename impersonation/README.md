@@ -66,9 +66,9 @@ curl -s -X POST \
 
 * client `impersonation-admin` must be allowed to exchange token
   for `public-spa` ([permissions/`token-exchange`](http://localhost:8882/admin/master/console/#/dev/clients/2575df73-bf3d-458f-b5f3-8eaacf134c39/permissions))
-* `grant` should must be allowed to
+* user `grant` should must be allowed to
   impersonate [users/permissions/`impersonate`](http://localhost:8882/admin/master/console/#/dev/users/permissions)
-  <br> out of the box this might be achieved by adding role `impersonation` to grant.
+  <br> out of the box this might be achieved by adding role `impersonation` to user `grant`.
 * if there are any policies defined
   on [users/permissions/`user-impersonated`](http://localhost:8882/admin/master/console/#/dev/users/permissions) there must allow
   too.
@@ -110,8 +110,10 @@ curl -s -X POST \
 
 https://github.com/keycloak/keycloak/discussions/20252
 
-now its getting trickier. what if when we want to allow certain rules on `users-impersonated` for different `impersonate`.
-how ca this be tied together? wouln't we need rules on `impersonate-&&-users-impersonated` which let us access.
+now its getting trickier. as far as i understand keycloak lets us checking policies on [users/permissions/](http://localhost:8882/admin/master/console/#/dev/users/permissions)
+* on `impersonate` you can check who can impersonate whatever user
+* on `users-impersonated` you can check which users can be impersonated by whoever
+* but where is it dies together so that one change check who can impersonate which users?
 
 #### S3.1 users with role tester should be able to impersonate only users starting with testuser
 
