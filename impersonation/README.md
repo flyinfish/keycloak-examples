@@ -5,7 +5,7 @@
 ### in docker
 
 ```
-cd token-exchange-sequence
+cd impersonation
 docker-compose up
 ```
 
