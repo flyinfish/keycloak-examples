@@ -110,7 +110,9 @@ curl -s -X POST \
 
 https://github.com/keycloak/keycloak/discussions/20252
 
-now its getting trickier. as far as i understand keycloak lets us checking policies on [users/permissions/](http://localhost:8882/admin/master/console/#/dev/users/permissions)
+now its getting trickier. as far as i understand keycloak lets us checking policies
+on [users/permissions/](http://localhost:8882/admin/master/console/#/dev/users/permissions)
+
 * on `impersonate` you can check who can impersonate whatever user
 * on `users-impersonated` you can check which users can be impersonated by whoever
 * but where is it dies together so that one change check who can impersonate which users?
@@ -161,15 +163,18 @@ curl -s -X POST \
 
 #### S3.2 `impersonation-direct-admin` should still be able to impersonate ALL users
 
-as explaine above, shouldnt [UserPermissions](https://github.com/keycloak/keycloak/blob/35b9d8aa496bfe827e32adbd48e5eabb4ab182e7/services/src/main/java/org/keycloak/services/resources/admin/permissions/UserPermissions.java#L355)
+as explaine above,
+shouldnt [UserPermissions](https://github.com/keycloak/keycloak/blob/35b9d8aa496bfe827e32adbd48e5eabb4ab182e7/services/src/main/java/org/keycloak/services/resources/admin/permissions/UserPermissions.java#L355)
+
 ```
 return canImpersonate(context) && isImpersonatable(user) && isImpersonatableWithinContext(context, user);
 ```
+
 rather than just
+
 ```
 return canImpersonate(context) && isImpersonatable(user);
 ```
-
 
 ```
  # does still work
@@ -193,6 +198,51 @@ curl -s -X POST \
 --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
 --data-urlencode "requested_subject=grant" | jq
 ```
+
+### S11 - impersonation via ui and api
+
+user `apiusr` logs in with client-id `public-spa`. since he is a tester he wants to impersonate `testuser001`.
+
+* http://localhost:8882/admin/dev/console/ login apiusr/apiusr
+* click users
+* select `testuser001`
+* select action: "impersonate" (top right) and click it
+* you're redirected to http://localhost:8882/realms/dev/account as `testuser001`
+
+the following sequence shows how to do the same by api, the end-result is a redirect-uri which can be accessed with cookies from
+response. this is therefore not suitable for generating tokens but for using the ui.
+
+```
+token1=$(curl -s -X POST \
+--location http://localhost:8882/realms/dev/protocol/openid-connect/token \
+--header "Content-Type: application/x-www-form-urlencoded" \
+--data-urlencode "client_id=public-spa" \
+--data-urlencode "grant_type=password" \
+--data-urlencode "username=apiusr" \
+--data-urlencode "password=apiusr" \
+| jq -r '.access_token')
+echo "token apiusr: $token1"  
+ 
+ # find user-id
+curl -s --header "Authorization: Bearer $token1" \
+http://localhost:8882/admin/realms/dev/users/52746c0b-109e-4cfb-b5bd-a1ec4554ab9a \
+| jq
+
+ # show user
+curl -s --header "Authorization: Bearer $token1" \
+http://localhost:8882/admin/realms/dev/users/52746c0b-109e-4cfb-b5bd-a1ec4554ab9a \
+| jq
+
+ # impersonate
+curl -i -s -X POST --header "Authorization: Bearer $token1" \
+http://localhost:8882/admin/realms/dev/users/52746c0b-109e-4cfb-b5bd-a1ec4554ab9a/impersonation
+```
+
+#### required config
+
+* user `apiusr` needs the following roles
+  * `(realm-management) view-users` for viewing users
+  * `(realm-management) impersonation` for performing impersonation
 
 ## export realm
 
