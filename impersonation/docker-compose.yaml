@@ -27,4 +27,4 @@ services:
     networks:
       default:
         aliases:
-          - keycloak-examples-multi-service-token-exchange
+          - keycloak-examples-impersonation

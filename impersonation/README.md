@@ -72,6 +72,9 @@ curl -s -X POST \
 * if there are any policies defined
   on [users/permissions/`user-impersonated`](http://localhost:8882/admin/master/console/#/dev/users/permissions) there must allow
   too.
+* out-of-the box we cannot see the impersonator in the impersonated token. this can easyly be achieved by adding default-mappers to
+  the client which is requested in the `audience` parameter
+  in [Client Details/Client Scopes/<client>-dedicated](http://localhost:8882/admin/master/console/#/dev/clients/2575df73-bf3d-458f-b5f3-8eaacf134c39/clientScopes/dedicated)
 
 ### S2 - direct naked impersonation
 
@@ -241,8 +244,8 @@ http://localhost:8882/admin/realms/dev/users/52746c0b-109e-4cfb-b5bd-a1ec4554ab9
 #### required config
 
 * user `apiusr` needs the following roles
-  * `(realm-management) view-users` for viewing users
-  * `(realm-management) impersonation` for performing impersonation
+    * `(realm-management) view-users` for viewing users
+    * `(realm-management) impersonation` for performing impersonation
 
 ## export realm
 
