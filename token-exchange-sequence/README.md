@@ -2,11 +2,15 @@
 
 https://stackoverflow.com/questions/78602573/keycloak-token-exchange-sequence
 
-Initially only [S1: token-exchange starting with grant_type=password on service-1-client](#s1-token-exchange-starting-with-grant_typepassword-on-service-1-client) worked
+Initially
+only [S1: token-exchange starting with grant_type=password on service-1-client](#s1-token-exchange-starting-with-grant_typepassword-on-service-1-client)
+worked
 
-Then issue https://github.com/keycloak/keycloak/issues/30614 fixed [S2: token-exchange starting with grant_type=client_credentials on `service-1-client`](#s2-token-exchange-starting-with-grant_typeclient_credentials-on-service-1-client)
+Then issue https://github.com/keycloak/keycloak/issues/30614
+fixed [S2: token-exchange starting with grant_type=client_credentials on `service-1-client`](#s2-token-exchange-starting-with-grant_typeclient_credentials-on-service-1-client)
 
-[S3: token-exchange starting with grant_type=password on `public-spa`](#s3-token-exchange-starting-with-grant_typepassword-on-public-spa) still fails
+[S3: token-exchange starting with grant_type=password on `public-spa`](#s3-token-exchange-starting-with-grant_typepassword-on-public-spa)
+still fails
 
 ## run keycloak
 
@@ -183,6 +187,66 @@ DEBUG [org.keycloak.services.managers.AuthenticationManager] (executor-thread-25
     
 ``` 
 
+there is a workaround with "self-exchange". while this works it is not shure how it would work with client-libraries which might
+only prepared to do one and not two token-exchanges.
+
+``` 
+  token1=$(curl -s -X POST \
+    --location http://localhost:8881/realms/dev/protocol/openid-connect/token \
+    --header "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "client_id=public-spa" \
+    --data-urlencode "grant_type=password" \
+    --data-urlencode "username=grant" \
+    --data-urlencode "password=grant" \
+    --data-urlencode "scope=service-1-client" \
+    | jq -r '.access_token')
+  echo $token1  
+    
+  # 2
+  token21=$(curl -s -X POST \
+    --location http://localhost:8881/realms/dev/protocol/openid-connect/token \
+    --header "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "client_id=service-1-client" \
+    --data-urlencode "client_secret=LgxGBWTyGvL1YqpeMPcUPprZpXUv34MR" \
+    --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+    --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+    --data-urlencode "audience=service-1-client" \
+    --data-urlencode "subject_token=$token1" | jq -r '.access_token')
+  echo $token21  
+  token22=$(curl -s -X POST \
+    --location http://localhost:8881/realms/dev/protocol/openid-connect/token \
+    --header "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "client_id=service-1-client" \
+    --data-urlencode "client_secret=LgxGBWTyGvL1YqpeMPcUPprZpXUv34MR" \
+    --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+    --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+    --data-urlencode "audience=service-2-client" \
+    --data-urlencode "subject_token=$token21" | jq -r '.access_token')
+  echo $token22  
+    
+  # 3
+  token31=$(curl -s -X POST \
+    --location http://localhost:8881/realms/dev/protocol/openid-connect/token \
+    --header "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "client_id=service-2-client" \
+    --data-urlencode "client_secret=UjGgHI0WsypbrtZtr2bTTbjKJll8TeDO" \
+    --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+    --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+    --data-urlencode "audience=service-2-client" \
+    --data-urlencode "subject_token=$token22" | jq -r '.access_token')
+  echo $token31  
+
+  curl -s -i -X POST \
+    --location http://localhost:8881/realms/dev/protocol/openid-connect/token \
+    --header "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "client_id=service-2-client" \
+    --data-urlencode "client_secret=UjGgHI0WsypbrtZtr2bTTbjKJll8TeDO" \
+    --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
+    --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
+    --data-urlencode "audience=service-3-client" \
+    --data-urlencode "subject_token=$token31"
+    
+``` 
 
 ## export realm
 
