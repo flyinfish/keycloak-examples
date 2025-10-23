@@ -1,0 +1,27 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.1
+    container_name: keycloak-examples-impersonation-v2
+    ports:
+      - "8883:8080"
+      - "8783:8787"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./import:/opt/keycloak/data/import
+    restart: on-failure
+    healthcheck:
+      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://keycloak-examples-impersonation:8080/realms/dev' ]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+    command:
+      - start-dev
+      - --import-realm
+      - --log-level=INFO,org.keycloak:debug,org.keycloak.transaction:info,org.keycloak.authorization.policy.provider:info
+      - --debug
+    networks:
+      default:
+        aliases:
+          - keycloak-examples-impersonation-v2

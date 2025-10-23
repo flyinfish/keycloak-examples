@@ -1,4 +1,4 @@
-# this example shows impersonation
+# this example shows impersonation based on admin-fine-grained-authz:v1
 
 ## run keycloak
 
