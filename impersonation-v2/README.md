@@ -5,7 +5,8 @@
 ### in docker
 
 ```
-cd impersonation
+git clone https://github.com/flyinfish/keycloak-examples.git
+cd keycloak-examples/impersonation-v2
 docker-compose up
 ```
 
