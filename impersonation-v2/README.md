@@ -18,7 +18,7 @@ all users have readonly-access to realm `dev` via composite-role [dev-ro](http:/
 
 ## scenarios
 
-### developer `dev01` is allowed to impersonate testusers `test01`
+### S1 - developer `dev01` is allowed to impersonate testusers `test01`
 
 go to [users](http://localhost:8883/admin/dev/console/#/dev/users) and login as `dev01`. <br>
 select any user you wish, only [test01](http://localhost:8883/admin/dev/console/#/dev/users/275bdbd8-2c5b-4d1a-b838-a7997ed3b85e/settings) can be impersonated top right in "Action"-dropdown.
@@ -28,7 +28,7 @@ select any user you wish, only [test01](http://localhost:8883/admin/dev/console/
 there is a group [testusers](http://localhost:8883/admin/dev/console/#/dev/groups) with `test01` as member.<br>
 the group-permission [testusers can be impersonated by users in role developer](http://localhost:8883/admin/dev/console/#/dev/permissions) for group `/testusers` with Authorization Scope `impersonate-members` is granted by policy [in-role-developer](http://localhost:8883/admin/dev/console/#/dev/permissions/4a32fd7a-05f3-49b7-94db-676ede8457e5/policies) to all users with role `developer`
 
-### customer `m01` can impersonate to its profiles `c11`,`c12`
+### S2 - customer `m01` can impersonate to its profiles `c11`,`c12`
 
 go to [users](http://localhost:8883/admin/dev/console/#/dev/users) and login as `m01` - you cannot login as `c11` or `c12` since these have no credentials, you only can impersonate to these users. <br>
 select any user you wish, only [c11 or c12](http://localhost:8883/admin/dev/console/#/dev/users/275bdbd8-2c5b-4d1a-b838-a7997ed3b85e/settings) can be impersonated top right in "Action"-dropdown.
